@@ -12,7 +12,7 @@ export class Christmas extends Scene {
 
         // At the beginning of our program, load one of each of these shape definitions onto the GPU.
         this.shapes = {
-            cabin: new Shape_From_File("assets/cabin.obj"),
+            cabin: new Shape_From_File("assets/cabin/walls.obj"),
             sky: new defs.Square(),
             snow_terrain: new Shape_From_File("assets/snow_terrain.obj")
         };
@@ -73,7 +73,7 @@ export class Christmas extends Scene {
         //temporary light 
         program_state.lights = [new Light(snow_terrain_pos, white_light, 1)];
 
-        let sky_transform = Mat4.identity().times(Mat4.translation(-2.50,-6.25,-30)).times(Mat4.scale(100,100,0.2));
+        let sky_transform = Mat4.identity().times(Mat4.translation(-2.50,-6.25,-30)).times(Mat4.scale(60,60,0.2));
 
         let cabin_transform = Mat4.identity().times(Mat4.scale(1.3,1.3,1.3)).times(Mat4.translation(0, 2, 12)).times(Mat4.rotation(Math.PI,0,1,0));
 

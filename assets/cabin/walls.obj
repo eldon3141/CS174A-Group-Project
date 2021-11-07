@@ -1,6 +1,6 @@
 # Blender v2.93.5 OBJ File: ''
 # www.blender.org
-mtllib cabin.mtl
+mtllib walls.mtl
 o House_Cylinder.057
 v 2.416810 2.461673 -2.570415
 v 2.416810 2.461673 3.596901
