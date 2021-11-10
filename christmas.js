@@ -40,8 +40,10 @@ export class Christmas extends Scene {
 
         // *** Materials
         this.materials = {
-            sky: new Material(new defs.Phong_Shader(),
-                { ambient: 1, diffusivity: 0.5, specularity: 0, color: hex_color("#A7C7E7") }),
+            sky_day: new Material(new defs.Phong_Shader(),
+                { ambient: 1, diffusivity: 0.5, specularity: 0, color: hex_color("#A7C7E7")}),
+            sky_night: new Material(new defs.Phong_Shader(),
+                { ambient: 1, diffusivity: 0.5, specularity: 0, color: hex_color("#2A2A35")}),
             snow_terrain: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#ffffff") }),
             tree: new Material(new defs.Phong_Shader(),
@@ -93,6 +95,9 @@ export class Christmas extends Scene {
         // TODO: adjust object positions to match any perspective
         let start_loc = Mat4.translation(-0.84, -4.17, -28.75);
         this.initial_camera_location = start_loc;
+
+        // Flags
+        this.is_day = true;
     }
 
     make_control_panel() {
@@ -106,6 +111,8 @@ export class Christmas extends Scene {
         // this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
         // this.new_line();
         // this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
+
+        this.key_triggered_button("Toggle day/night", ["Control", "0"], () => { this.is_day = !this.is_day; });
     }
 
     toHex(val) {
@@ -269,7 +276,12 @@ export class Christmas extends Scene {
 
 
         // Drawing
-        this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky);
+        if (this.is_day) {
+                this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky_day);
+        } else {
+                this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky_night);
+        }
+
         this.shapes.snow_terrain.draw(context, program_state, snow_terrain_transform, this.materials.snow_terrain);
 
         let total_background_trees = 14;
