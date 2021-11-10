@@ -17,7 +17,25 @@ export class Christmas extends Scene {
             cabin_frame: new Shape_From_File("assets/cabin/walls.obj"),
             cabin_door: new Shape_From_File("assets/cabin/door.obj"),
             snow_roof: new Shape_From_File("assets/cabin/snow_roof.obj"),
-            garland: new Shape_From_File("assets/cabin/garland.obj")
+            garland: new Shape_From_File("assets/cabin/garland.obj"),
+            chris_tree_body: new Shape_From_File("assets/christmas_tree/body.obj"),
+            chris_tree_stump: new Shape_From_File("assets/christmas_tree/stump.obj"),
+            chris_tree_ornament: new Shape_From_File("assets/christmas_tree/ornament.obj"),
+            chris_tree_star: new Shape_From_File("assets/christmas_tree/star.obj"),
+            present1_box: new Shape_From_File("assets/presents/box1.obj"),
+            present1_ribbon: new Shape_From_File("assets/presents/ribbon1.obj"),
+            present2_box: new Shape_From_File("assets/presents/box2.obj"),
+            present2_ribbon: new Shape_From_File("assets/presents/ribbon2.obj"),
+            present3_box: new Shape_From_File("assets/presents/box3.obj"),
+            present3_ribbon: new Shape_From_File("assets/presents/ribbon3.obj"),
+            snowman_body: new Shape_From_File("assets/snowman/snow_spheres.obj"),
+            snowman_arms: new Shape_From_File("assets/snowman/arms.obj"),
+            snowman_eyes: new Shape_From_File("assets/snowman/eyes.obj"),
+            snowman_buttons: new Shape_From_File("assets/snowman/buttons.obj"),
+            snowman_mouth: new Shape_From_File("assets/snowman/mouth.obj"),
+            snowman_nose: new Shape_From_File("assets/snowman/nose.obj"),
+            snowman_scarf: new Shape_From_File("assets/snowman/scarf.obj"),
+            snowman_hat: new Shape_From_File("assets/snowman/hat.obj")
         };
 
         // *** Materials
@@ -26,6 +44,8 @@ export class Christmas extends Scene {
                 { ambient: 1, diffusivity: 0.5, specularity: 0, color: hex_color("#A7C7E7") }),
             snow_terrain: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#ffffff") }),
+            tree: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#798978")}),
             cabin_frame: new Material(new defs.Phong_Shader(),
                 { ambient: 0.5, color: hex_color("#6F4E37")}),
             cabin_door: new Material(new defs.Phong_Shader(),
@@ -33,10 +53,45 @@ export class Christmas extends Scene {
             snow_roof: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#ffffff") }),
             garland: new Material(new defs.Phong_Shader(),
-                { ambient: 1, color: hex_color("#4F7942") })
+                { ambient: 1, color: hex_color("#4F7942") }),
+            chris_tree_body: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#355E3B")}),
+            chris_tree_stump: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#3a2713")}),
+            chris_tree_ornament_red: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#A93226") }),
+            chris_tree_ornament_yellow: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#FBEC5D")}),
+            chris_tree_star: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#FFEA00") }),
+            ribbon: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#A93226") }),
+            green_present: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#50C878") }),
+            blue_present: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#6495ED") }),
+            purple_present: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#C3B1E1") }),
+            snowman_body: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#ECF0F1") }),
+            snowman_arms: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#5C4033") }),
+            snowman_eyes: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#1B1212") }),
+            snowman_buttons: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#1B1212") }),
+            snowman_mouth: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#1B1212") }),
+            snowman_nose: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#EC5800") }),
+            snowman_scarf: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#A93226") }),
+            snowman_hat: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#1B1212") }),
         }
 
-        let start_loc = Mat4.translation(-0.56, -4.59, -30.00);
+        // TODO: adjust object positions to match any perspective
+        let start_loc = Mat4.translation(-0.84, -4.17, -28.75);
         this.initial_camera_location = start_loc;
     }
 
@@ -84,6 +139,9 @@ export class Christmas extends Scene {
         let sky_scale = Mat4.scale(60, 60, 0.2);
         let sky_transform = Mat4.identity().times(sky_pos).times(sky_scale);
         
+        let tree_pos = Mat4.translation(-24, -1, -8);
+        let tree_transform = Mat4.identity().times(tree_pos).times(Mat4.scale(2, 2, 2));
+           
         let cabin_frame_scale = Mat4.scale(2, 2, 2);
         let cabin_frame_pos = Mat4.translation(0, 0.45, 6);
         let cabin_frame_rot = Mat4.rotation(Math.PI, 0, 1 ,0);
@@ -97,10 +155,112 @@ export class Christmas extends Scene {
         let garland_scale = Mat4.scale(0.2, 0.2, 0.2);
         let garland_pos = Mat4.translation(1.3, 3, 65);
         let garland_transform = Mat4.identity().times(garland_scale).times(garland_pos);
+        let garl_orn_transform = garland_transform.times(Mat4.translation(0, -0.6, 2)).times(Mat4.scale(0.2, 0.2, 0.2));
+        // TODO: Rename transformations later
+        let garl_orn_transform2 = garl_orn_transform.times(Mat4.translation(-4, 2, 0));
+        let garl_orn_transform3 = garl_orn_transform.times(Mat4.translation(4, 2, 0));
+        let garl_orn_transform4 = garl_orn_transform2.times(Mat4.translation(0, 5, 0));
+        let garl_orn_transform5 = garl_orn_transform3.times(Mat4.translation(0, 5, 0));
+        let garl_orn_transform6 = garl_orn_transform.times(Mat4.translation(0, 10, 0));
 
         let snow_roof_scale = Mat4.scale(2, 2, 2);
         let snow_roof_pos = Mat4.translation(0.15, 1.15, 6);
         let snow_roof_transform = Mat4.identity().times(snow_roof_scale).times(snow_roof_pos);
+        
+        let chris_tree_body_pos = Mat4.translation(-6, 2.9, 15);
+        let chris_tree_body_scale = Mat4.scale(1.5, 1.5, 1.5)
+        let chris_tree_body_transform = Mat4.identity().times(chris_tree_body_pos).times(chris_tree_body_scale);
+            
+        let chris_tree_stump_pos = Mat4.translation(-6.1, 0.6, 15);
+        let chris_tree_stump_scale = Mat4.scale(0.4, 0.4, 0.4);
+        let chris_tree_stump_transform = Mat4.identity().times(chris_tree_stump_pos).times(chris_tree_stump_scale);
+        
+        // Ornaments
+        let ornament_scale = Mat4.scale(0.1, 0.1, 0.1);
+        
+        // Place ornaments bottom-up
+        let red_ornaments = [
+            Mat4.translation(-63, 15, 165),
+            Mat4.translation(10, 2, 0),
+            Mat4.translation(10, 1, 0),
+            Mat4.translation(-4, 12, 0),
+            Mat4.translation(-10, 0, 0),
+            Mat4.translation(-2, 6, 0),
+            Mat4.translation(10, 2, 0),
+            Mat4.translation(-4, 10, 0)
+        ];
+        
+        let yellow_ornaments = [
+            Mat4.translation(-58, 18, 165),
+            Mat4.translation(10, -2, 0),
+            Mat4.translation(4 , 5, 0),
+            Mat4.translation(-7, 2, 0),
+            Mat4.translation(-9, 1, 0),
+            Mat4.translation(7, 7, 0),
+            Mat4.translation(-3, 7, 0),
+            Mat4.translation(7, 5, 0)
+        ]
+
+        
+        let chris_tree_star_scale = Mat4.scale(0.2, 0.2, 0.2);
+        let chris_tree_star_pos = Mat4.translation(-27.5, 28, 80);
+        let chris_tree_star_rot = Mat4.rotation(Math.PI / 2, 1, 0, 0);
+        let chris_tree_star_transform = Mat4.identity().times(chris_tree_star_scale).times(chris_tree_star_pos).times(chris_tree_star_rot);
+
+        // Presents
+        let present1_pos = Mat4.translation(-4, 1.7, 20.5);
+        let present1_scale = Mat4.scale(0.3, 0.3, 0.3);
+        let present1_transform = Mat4.identity().times(present1_pos).times(present1_scale);
+        let ribbon1_transform = present1_transform.times(Mat4.translation(0, 0.5, 0));
+
+        let present2_pos = Mat4.translation(-2.5, 1.5, 20);
+        let present2_scale = Mat4.scale(0.3, 0.3, 0.3);
+        let present2_transform = Mat4.identity().times(present2_pos).times(present2_scale);
+        let ribbon2_transform = present2_transform.times(Mat4.translation(0, 1.1, 0));
+
+        let present3_pos = Mat4.translation(-4, 1, 18);
+        let present3_scale = Mat4.scale(0.3, 0.3, 0.3);
+        let present3_transform = Mat4.identity().times(present3_pos).times(present3_scale);
+        let ribbon3_transform = present3_transform.times(Mat4.translation(0, 1.1, 0));
+
+        // Snowman 
+        let snowman_body_pos = Mat4.translation(5, 1.9, 18);
+        let snowman_body_scale = Mat4.scale(0.4, 0.4, 0.4);
+        let snowman_body_transform = Mat4.identity().times(snowman_body_pos).times(snowman_body_scale);
+
+        let snowman_arms_rot = Mat4.rotation(Math.PI/2, 0, 1, 0);
+        let snowman_arms_scale = Mat4.scale(1.1, 1.1, 1.1);
+        let snowman_arms_transform = snowman_body_transform.times(snowman_arms_rot).times(snowman_arms_scale);
+
+        let snowman_eyes_rot = Mat4.rotation(Math.PI/2, 0, 1, 0);
+        let snowman_eyes_scale = Mat4.scale(0.2, 0.2, 0.2);
+        let snowman_eyes_pos = Mat4.translation(-0.2, 1.5, 0.5);
+        let snowman_eyes_transform = snowman_body_transform.times(snowman_eyes_pos).times(snowman_eyes_rot).times(snowman_eyes_scale);
+
+        let snowman_buttons_scale = Mat4.scale(0.2, 0.2, 0.2);
+        let snowman_buttons_pos = Mat4.translation(-0.1, 0.2, 0.7);
+        let snowman_buttons_transform = snowman_body_transform.times(snowman_buttons_pos).times(snowman_buttons_scale);
+
+        let snowman_mouth_rot = Mat4.rotation(Math.PI/2, 0, 1, 0);
+        let snowman_mouth_scale = Mat4.scale(0.15, 0.15, 0.15);
+        let snowman_mouth_pos = Mat4.translation(-0.2, 1, 0.6);
+        let snowman_mouth_transform = snowman_body_transform.times(snowman_mouth_pos).times(snowman_mouth_rot).times(snowman_mouth_scale);
+
+        let snowman_nose_rot = Mat4.rotation(-Math.PI/2, 0, 1, 0);
+        let snowman_nose_scale = Mat4.scale(0.3, 0.3, 0.3);
+        let snowman_nose_pos = Mat4.translation(0, 1.3, 0.4);
+        let snowman_nose_transform = snowman_body_transform.times(snowman_nose_pos).times(snowman_nose_rot).times(snowman_nose_scale);
+
+        let snowman_scarf_rot = Mat4.rotation(Math.PI/2, 0, 1, 0);
+        let snowman_scarf_scale = Mat4.scale(0.55, 0.55, 0.55);
+        let snowman_scarf_pos = Mat4.translation(-0.2, 0.7, 0);
+        let snowman_scarf_transform = snowman_body_transform.times(snowman_scarf_pos).times(snowman_scarf_rot).times(snowman_scarf_scale);
+
+        //TODO: Find a hat object that's not hollow on the top (glitches)
+        let snowman_hat_scale = Mat4.scale(0.5, 0.5, 0.5);
+        let snowman_hat_pos = Mat4.translation(0, 1.8, 0);
+        let snowman_hat_transform = snowman_body_transform.times(snowman_hat_pos).times(snowman_hat_scale);
+
 
         // Lighting
         let white_light = vec4(1, 1, 1, 1);
@@ -111,14 +271,60 @@ export class Christmas extends Scene {
         // Drawing
         this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky);
         this.shapes.snow_terrain.draw(context, program_state, snow_terrain_transform, this.materials.snow_terrain);
+
+        let total_background_trees = 14;
+
+        let right_shift = Mat4.translation(2, 0, 0);
+
+        for(let i = 0; i < total_background_trees; i++){
+            this.shapes.chris_tree_body.draw(context, program_state, tree_transform, this.materials.tree);
+            tree_transform = tree_transform.times(right_shift);
+        }
+
         this.shapes.cabin_frame.draw(context, program_state, cabin_frame_transform, this.materials.cabin_frame);
         this.shapes.cabin_door.draw(context, program_state, cabin_door_transform, this.materials.cabin_door);
         this.shapes.snow_roof.draw(context, program_state, snow_roof_transform, this.materials.snow_roof);
+
         this.shapes.garland.draw(context, program_state, garland_transform, this.materials.garland);
-        // Camera Options 
-        // if (this.attached) {
-        //     program_state.camera_inverse = this.attached().map((x, i) =>
-        //         Vector.from(program_state.camera_inverse[i]).mix(x, 0.1));
-        // }
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform, this.materials.chris_tree_ornament_red);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform2, this.materials.chris_tree_ornament_red);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform3, this.materials.chris_tree_ornament_red);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform4, this.materials.chris_tree_ornament_red);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform5, this.materials.chris_tree_ornament_red);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform6, this.materials.chris_tree_ornament_red);
+
+        this.shapes.chris_tree_body.draw(context, program_state, chris_tree_body_transform, this.materials.chris_tree_body);
+        this.shapes.chris_tree_stump.draw(context, program_state, chris_tree_stump_transform, this.materials.chris_tree_stump);
+
+        let prev_transform = Mat4.identity().times(ornament_scale);
+        red_ornaments.forEach((pos_change) => { 
+            let orn_transform = prev_transform.times(pos_change);
+            this.shapes.chris_tree_ornament.draw(context, program_state, orn_transform, this.materials.chris_tree_ornament_red);
+            prev_transform = orn_transform;
+        } )
+
+        prev_transform = Mat4.identity().times(ornament_scale);
+        yellow_ornaments.forEach((pos_change) => {
+            let orn_transform = prev_transform.times(pos_change);
+            this.shapes.chris_tree_ornament.draw(context, program_state, orn_transform, this.materials.chris_tree_ornament_yellow);
+            prev_transform = orn_transform;
+        })
+        
+        this.shapes.chris_tree_star.draw(context, program_state, chris_tree_star_transform, this.materials.chris_tree_star);
+        this.shapes.present1_box.draw(context, program_state, present1_transform, this.materials.green_present);
+        this.shapes.present1_ribbon.draw(context, program_state, ribbon1_transform, this.materials.ribbon);
+        this.shapes.present2_box.draw(context, program_state, present2_transform, this.materials.blue_present);
+        this.shapes.present2_ribbon.draw(context, program_state, ribbon2_transform, this.materials.ribbon);    
+        this.shapes.present3_box.draw(context, program_state, present3_transform, this.materials.purple_present);
+        this.shapes.present3_ribbon.draw(context, program_state, ribbon3_transform, this.materials.ribbon);
+
+        this.shapes.snowman_body.draw(context, program_state, snowman_body_transform, this.materials.snowman_body);
+        this.shapes.snowman_arms.draw(context, program_state, snowman_arms_transform, this.materials.snowman_arms);
+        this.shapes.snowman_eyes.draw(context, program_state, snowman_eyes_transform, this.materials.snowman_eyes);
+        this.shapes.snowman_buttons.draw(context, program_state, snowman_buttons_transform, this.materials.snowman_buttons);
+        this.shapes.snowman_mouth.draw(context, program_state, snowman_mouth_transform, this.materials.snowman_mouth);
+        this.shapes.snowman_nose.draw(context, program_state, snowman_nose_transform, this.materials.snowman_nose);
+        this.shapes.snowman_scarf.draw(context, program_state, snowman_scarf_transform, this.materials.snowman_scarf);
+        this.shapes.snowman_hat.draw(context, program_state, snowman_hat_transform, this.materials.snowman_hat);
     }
 }
