@@ -40,10 +40,8 @@ export class Christmas extends Scene {
 
         // *** Materials
         this.materials = {
-            sky_day: new Material(new defs.Phong_Shader(),
+            sky: new Material(new defs.Phong_Shader(),
                 { ambient: 1, diffusivity: 0.5, specularity: 0, color: hex_color("#A7C7E7")}),
-            sky_night: new Material(new defs.Phong_Shader(),
-                { ambient: 1, diffusivity: 0.5, specularity: 0, color: hex_color("#2A2A35")}),
             snow_terrain: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#ffffff") }),
             tree: new Material(new defs.Phong_Shader(),
@@ -98,6 +96,10 @@ export class Christmas extends Scene {
 
         // Flags
         this.is_day = true;
+
+        // Ornament colors
+        this.red_ornament_colors = ["#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226"];
+        this.yellow_ornament_colors = ["#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D"];
     }
 
     make_control_panel() {
@@ -113,6 +115,20 @@ export class Christmas extends Scene {
         // this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
 
         this.key_triggered_button("Toggle day/night", ["Control", "0"], () => { this.is_day = !this.is_day; });
+        this.key_triggered_button("Set ornament colors", ["Control", "1"], this.set_ornament_colors);
+    }
+
+    set_ornament_colors() {
+        for (let k = 0; k < 8; k++) {
+            let min = 0;
+            let max = 256;
+
+            let new_red_color = this.toHex(this.getRandomInt(min,max)) + this.toHex(this.getRandomInt(min,max)) + this.toHex(this.getRandomInt(min,max));
+            let new_yellow_color = this.toHex(this.getRandomInt(min,max)) + this.toHex(this.getRandomInt(min,max)) + this.toHex(this.getRandomInt(min,max));
+            
+            this.red_ornament_colors[k] = new_red_color;
+            this.yellow_ornament_colors[k] = new_yellow_color;
+        }
     }
 
     toHex(val) {
@@ -120,6 +136,12 @@ export class Christmas extends Scene {
         if (hex.length < 2)
             hex = "0" + hex;
         return hex;
+    }
+
+    getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max-min) + min);
     }
 
     display(context, program_state) {
@@ -276,12 +298,11 @@ export class Christmas extends Scene {
 
 
         // Drawing
-        if (this.is_day) {
-                this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky_day);
-        } else {
-                this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky_night);
-        }
+        let sky_color = "#A7C7E7";
+        if (!this.is_day)
+            sky_color = "#2A2A35";
 
+        this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky.override(hex_color(sky_color)));
         this.shapes.snow_terrain.draw(context, program_state, snow_terrain_transform, this.materials.snow_terrain);
 
         let total_background_trees = 14;
@@ -309,17 +330,21 @@ export class Christmas extends Scene {
         this.shapes.chris_tree_stump.draw(context, program_state, chris_tree_stump_transform, this.materials.chris_tree_stump);
 
         let prev_transform = Mat4.identity().times(ornament_scale);
+        let k = 0;
         red_ornaments.forEach((pos_change) => { 
             let orn_transform = prev_transform.times(pos_change);
-            this.shapes.chris_tree_ornament.draw(context, program_state, orn_transform, this.materials.chris_tree_ornament_red);
+            this.shapes.chris_tree_ornament.draw(context, program_state, orn_transform, this.materials.chris_tree_ornament_red.override(hex_color(this.red_ornament_colors[k])));
             prev_transform = orn_transform;
+            k++;
         } )
-
+        
+        k = 0;
         prev_transform = Mat4.identity().times(ornament_scale);
         yellow_ornaments.forEach((pos_change) => {
             let orn_transform = prev_transform.times(pos_change);
-            this.shapes.chris_tree_ornament.draw(context, program_state, orn_transform, this.materials.chris_tree_ornament_yellow);
+            this.shapes.chris_tree_ornament.draw(context, program_state, orn_transform, this.materials.chris_tree_ornament_yellow.override(hex_color(this.yellow_ornament_colors[k])));
             prev_transform = orn_transform;
+            k++;
         })
         
         this.shapes.chris_tree_star.draw(context, program_state, chris_tree_star_transform, this.materials.chris_tree_star);
