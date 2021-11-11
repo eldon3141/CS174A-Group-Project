@@ -35,7 +35,8 @@ export class Christmas extends Scene {
             snowman_mouth: new Shape_From_File("assets/snowman/mouth.obj"),
             snowman_nose: new Shape_From_File("assets/snowman/nose.obj"),
             snowman_scarf: new Shape_From_File("assets/snowman/scarf.obj"),
-            snowman_hat: new Shape_From_File("assets/snowman/hat.obj")
+            snowman_hat: new Shape_From_File("assets/snowman/hat.obj"),
+            snow: new defs.Subdivision_Sphere(4)
         };
 
         // *** Materials
@@ -88,7 +89,14 @@ export class Christmas extends Scene {
                 { ambient: 1, color: hex_color("#A93226") }),
             snowman_hat: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#1B1212") }),
+            snow: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#FFFFFF")}
+            )
+
         }
+
+        this.snowLocations = [];
+
 
         // TODO: adjust object positions to match any perspective
         let start_loc = Mat4.translation(-0.84, -4.17, -28.75);
@@ -96,6 +104,7 @@ export class Christmas extends Scene {
 
         // Flags
         this.is_day = true;
+        this.snowing = false;
 
         // Ornament colors
         this.red_ornament_colors = ["#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226"];
@@ -116,6 +125,7 @@ export class Christmas extends Scene {
 
         this.key_triggered_button("Toggle day/night", ["Control", "0"], () => { this.is_day = !this.is_day; });
         this.key_triggered_button("Set ornament colors", ["Control", "1"], this.set_ornament_colors);
+        this.key_triggered_button("Toggle snow", ["Control", "2"], this.addSnow);
     }
 
     set_ornament_colors() {
@@ -144,6 +154,25 @@ export class Christmas extends Scene {
         return Math.floor(Math.random() * (max-min) + min);
     }
 
+    addSnow() {
+        this.snowing = !this.snowing;
+        if (this.snowing) {
+            for (var i = 0; i < 300; i++) {
+                var x = this.getRandomInt(-50, 50);
+                var z = this.getRandomInt(-50, 50);
+                var y = this.getRandomInt(0, 80);
+                this.snowLocations.push(vec3(x, y, z));
+        //this.snowLocations.push(vec3(x, 100, z));
+            }
+        }
+        else {
+            this.snowLocations = [];
+        }
+
+    }
+
+
+
     display(context, program_state) {
         // display():  Called once per frame of animation.
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
@@ -156,7 +185,7 @@ export class Christmas extends Scene {
         program_state.projection_transform = Mat4.perspective(
             Math.PI / 4, context.width / context.height, .1, 1000);
 
-        const t = program_state.animation_time / 1000;
+        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
 
         
         // Transformations
@@ -363,5 +392,31 @@ export class Christmas extends Scene {
         this.shapes.snowman_nose.draw(context, program_state, snowman_nose_transform, this.materials.snowman_nose);
         this.shapes.snowman_scarf.draw(context, program_state, snowman_scarf_transform, this.materials.snowman_scarf);
         this.shapes.snowman_hat.draw(context, program_state, snowman_hat_transform, this.materials.snowman_hat);
+    
+        //Draw Falling Snow
+
+
+        //this.animateSnow(program_state, context);
+   
+     
+        
+        //this.addSnow(0);
+
+        
+       
+        for (let i = 0; i < this.snowLocations.length; i++) {
+            if (dt > 0) {
+                this.snowLocations[i][1] = this.snowLocations[i][1] - 0.1;
+            }
+            if (this.snowLocations[i][1] < 0) {
+                this.snowLocations[i][1] = 80;
+            }
+            //snowLocations[i].y-=dt;
+            //document.write(this.snowLocactions[i].x);
+            //document.write("*****");
+            let snow_transform = Mat4.identity().times(Mat4.translation(this.snowLocations[i][0], this.snowLocations[i][1], this.snowLocations[i][2])).times(Mat4.scale(0.3, 0.3, 0.3));
+            this.shapes.snow.draw(context, program_state, snow_transform, this.materials.snow);
+        }
+
     }
 }
