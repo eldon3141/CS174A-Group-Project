@@ -339,7 +339,14 @@ export class Christmas extends Scene {
         let right_shift = Mat4.translation(2, 0, 0);
 
         for(let i = 0; i < total_background_trees; i++){
-            this.shapes.chris_tree_body.draw(context, program_state, tree_transform, this.materials.tree);
+            if(i == 1 || i == 4 || i == 9 || i == 13) {
+                this.shapes.chris_tree_body.draw(context, program_state, tree_transform, this.materials.tree);
+            } else if (i % 2 == 0) {
+                this.shapes.chris_tree_body.draw(context, program_state, tree_transform, this.materials.tree.override({color: hex_color("#a7b9bd")}));
+            } else {
+                this.shapes.chris_tree_body.draw(context, program_state, tree_transform, this.materials.tree.override({color: hex_color("#809ea6")}));
+            }
+            
             tree_transform = tree_transform.times(right_shift);
         }
 
