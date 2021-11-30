@@ -105,11 +105,12 @@ export class Christmas extends Scene {
 
         }
 
+        this.canvas;
         // AUDIO
         this.music = new Audio();
         this.activated = false;
-
         this.snowLocations = [];
+        this.hasListener = false;
 
         // TODO: adjust object positions to match any perspective
         let start_loc = Mat4.translation(-0.84, -4.17, -28.75);
@@ -194,30 +195,42 @@ export class Christmas extends Scene {
 
     }
 
+
     display(context, program_state) {
-        let canvas = context.canvas;
+        this.canvas = context.canvas;
         let left_bound = -0.68;
         let right_bound = -0.64;
         let top_bound = 0.43; 
         let bottom_bound = 0.25; 
 
-        const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
+        const mouse_position = (e, rect = this.canvas.getBoundingClientRect()) =>
             vec((e.clientX - (rect.left + rect.right) / 2) / ((rect.right - rect.left) / 2),
                 (e.clientY - (rect.bottom + rect.top) / 2) / ((rect.top - rect.bottom) / 2));
 
-        canvas.addEventListener("mousedown", e => {
+        if(!this.hasListener){
+        this.hasListener = true;
+        this.canvas.addEventListener("click", e => {
             e.preventDefault();
             let pos = mouse_position(e);
             let pos_x = pos[0];
             let pos_y = pos[1];
             let inside_x = ( (pos_x >= left_bound) && (pos_x <= right_bound) );
             let inside_y = ( (pos_y >= bottom_bound) && (pos_y <= top_bound) );
-            if(inside_x && inside_y && !this.activated){
-                this.activated = true;
-                console.log("Playing music!");
-                this.play_music();
+            if(inside_x && inside_y){
+                if (!this.activated){
+                    this.activated = true;
+                    console.log("Playing music!");
+                    this.play_music();
+                }
+                else{
+                    this.activated = false;
+                    console.log("Pausing music!");
+                    this.pause_music();
+                }
             }
+
         });
+    }
 
         // display():  Called once per frame of animation.
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
