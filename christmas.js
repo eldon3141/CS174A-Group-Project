@@ -383,13 +383,16 @@ export class Christmas extends Scene {
         let music_transform = Mat4.identity().times(music_pos).times(music_scale);
 
         // Santa
-        let santa_pos;
-        if((-20 + t) >= 25) {
-            santa_pos = Mat4.translation(25, 11, 0);
-        }else{
-            santa_pos = Mat4.translation(-20 + 3*t, 11, 0);
-        }
-        let santa_rot = Mat4.rotation(Math.PI/2.2, 0, 1,0).times(Mat4.rotation(Math.PI/8,0,0,1));
+//         let santa_pos;
+//         if((-20 + t) >= 25) {
+//             santa_pos = Mat4.translation(25, 11, 0);
+//         }else{
+//             santa_pos = Mat4.translation(-20 + 3*t, 11, 0);
+//         }
+//         let santa_pos = Mat4.translation(-20 + 2.25*t, 11 + 0.5*Math.sin(0.05*Math.PI*t), 0);
+       
+        let santa_pos = Mat4.translation(-20 + 3*(t%20), 11, 0);
+        let santa_rot = Mat4.rotation(Math.PI/2.2, 0, 1,0).times(Mat4.rotation(Math.PI/8,0,0,1)).times(Mat4.rotation(Math.sin(0.005*Math.PI*(t%20)),1,0,0));
         let santa_scale = Mat4.scale(2,2,2);
         let santa_transform = Mat4.identity().times(santa_pos).times(santa_rot).times(santa_scale);
 
