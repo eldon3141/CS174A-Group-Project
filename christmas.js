@@ -4,6 +4,8 @@ const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
 } = tiny;
 
+
+
 let ok = true;
 export class Christmas extends Scene {
     constructor() {
@@ -103,8 +105,11 @@ export class Christmas extends Scene {
 
         }
 
-        this.snowLocations = [];
+        // AUDIO
+        this.music = new Audio();
+        this.activated = false;
 
+        this.snowLocations = [];
 
         // TODO: adjust object positions to match any perspective
         let start_loc = Mat4.translation(-0.84, -4.17, -28.75);
@@ -117,6 +122,16 @@ export class Christmas extends Scene {
         // Ornament colors
         this.red_ornament_colors = ["#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226"];
         this.yellow_ornament_colors = ["#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D"];
+    }
+
+    play_music() {
+        this.music.src = "assets/let_it_snow.mp3";
+        this.music.volume = 0.1;
+        this.music.play();
+    }
+
+    pause_music() {
+        this.music.pause();
     }
 
     make_control_panel() {
@@ -179,9 +194,31 @@ export class Christmas extends Scene {
 
     }
 
-
-
     display(context, program_state) {
+        let canvas = context.canvas;
+        let left_bound = -0.68;
+        let right_bound = -0.64;
+        let top_bound = 0.43; 
+        let bottom_bound = 0.25; 
+
+        const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
+            vec((e.clientX - (rect.left + rect.right) / 2) / ((rect.right - rect.left) / 2),
+                (e.clientY - (rect.bottom + rect.top) / 2) / ((rect.top - rect.bottom) / 2));
+
+        canvas.addEventListener("mousedown", e => {
+            e.preventDefault();
+            let pos = mouse_position(e);
+            let pos_x = pos[0];
+            let pos_y = pos[1];
+            let inside_x = ( (pos_x >= left_bound) && (pos_x <= right_bound) );
+            let inside_y = ( (pos_y >= bottom_bound) && (pos_y <= top_bound) );
+            if(inside_x && inside_y && !this.activated){
+                this.activated = true;
+                console.log("Playing music!");
+                this.play_music();
+            }
+        });
+
         // display():  Called once per frame of animation.
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
         if (!context.scratchpad.controls) {
@@ -268,8 +305,8 @@ export class Christmas extends Scene {
         ]
 
         
-        let chris_tree_star_scale = Mat4.scale(0.2, 0.2, 0.2);
-        let chris_tree_star_pos = Mat4.translation(-27.5, 28, 80);
+        let chris_tree_star_scale = Mat4.scale(0.85, 0.85, 0.85);
+        let chris_tree_star_pos = Mat4.translation(-20.8, 10.8, -10);
         let chris_tree_star_rot = Mat4.rotation(Math.PI / 2, 1, 0, 0);
         let chris_tree_star_transform = Mat4.identity().times(chris_tree_star_scale).times(chris_tree_star_pos).times(chris_tree_star_rot);
 
@@ -328,14 +365,11 @@ export class Christmas extends Scene {
         let snowman_hat_transform = snowman_body_transform.times(snowman_hat_pos).times(snowman_hat_scale);
 
         // // Music Symbol
-        // let music__scale = Mat4.scale(1, 1, 1);
-        // let music_pos = Mat4.translation(0, 2, 0);
-        // let music_transform = Mat4.identity().times(music_pos);
+        let music_scale = Mat4.scale(0.14, 0.14, 0.14);
+        let music_pos = Mat4.translation(-4.5, 5.565, 18);
+        let music_transform = Mat4.identity().times(music_pos).times(music_scale);
 
-        // Santa
-        let santa__scale = Mat4.scale(1, 1, 1);
-        let santa_pos = Mat4.translation(0, 5, 5);
-        let santa_transform = Mat4.identity().times(santa_pos);
+
 
         // Lighting
         let white_light = vec4(1, 1, 1, 1);
@@ -417,9 +451,9 @@ export class Christmas extends Scene {
         this.shapes.snowman_scarf.draw(context, program_state, snowman_scarf_transform, this.materials.snowman_scarf);
         this.shapes.snowman_hat.draw(context, program_state, snowman_hat_transform, this.materials.snowman_hat);
         
-        // this.shapes.music_symbol.draw(context, program_state, music_transform, this.materials.music_symbol);
+        this.shapes.music_symbol.draw(context, program_state, music_transform, this.materials.music_symbol);
 
-        this.shapes.santa.draw(context, program_state, santa_transform, this.materials.santa);
+        // this.shapes.santa.draw(context, program_state, santa_transform, this.materials.santa);
         //Draw Falling Snow
 
 
@@ -444,6 +478,9 @@ export class Christmas extends Scene {
             let snow_transform = Mat4.identity().times(Mat4.translation(this.snowLocations[i][0], this.snowLocations[i][1], this.snowLocations[i][2])).times(Mat4.scale(0.3, 0.3, 0.3));
             this.shapes.snow.draw(context, program_state, snow_transform, this.materials.snow);
         }
+        
 
     }
+
+
 }
