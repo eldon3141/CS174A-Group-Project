@@ -36,6 +36,8 @@ export class Christmas extends Scene {
             snowman_nose: new Shape_From_File("assets/snowman/nose.obj"),
             snowman_scarf: new Shape_From_File("assets/snowman/scarf.obj"),
             snowman_hat: new Shape_From_File("assets/snowman/hat.obj"),
+            music_symbol: new Shape_From_File("assets/music_symbol.obj"),
+            santa: new Shape_From_File("assets/santa.obj"),
             snow: new defs.Subdivision_Sphere(4)
         };
 
@@ -91,6 +93,12 @@ export class Christmas extends Scene {
                 { ambient: 1, color: hex_color("#1B1212") }),
             snow: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#FFFFFF")}
+            ),
+            music_symbol: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#000000") }
+            ),
+            santa: new Material(new defs.Phong_Shader(),
+                { ambient: 1, color: hex_color("#000000") }
             )
 
         }
@@ -319,6 +327,15 @@ export class Christmas extends Scene {
         let snowman_hat_pos = Mat4.translation(0, 1.8, 0);
         let snowman_hat_transform = snowman_body_transform.times(snowman_hat_pos).times(snowman_hat_scale);
 
+        // // Music Symbol
+        // let music__scale = Mat4.scale(1, 1, 1);
+        // let music_pos = Mat4.translation(0, 2, 0);
+        // let music_transform = Mat4.identity().times(music_pos);
+
+        // Santa
+        let santa__scale = Mat4.scale(1, 1, 1);
+        let santa_pos = Mat4.translation(0, 5, 5);
+        let santa_transform = Mat4.identity().times(santa_pos);
 
         // Lighting
         let white_light = vec4(1, 1, 1, 1);
@@ -399,7 +416,10 @@ export class Christmas extends Scene {
         this.shapes.snowman_nose.draw(context, program_state, snowman_nose_transform, this.materials.snowman_nose);
         this.shapes.snowman_scarf.draw(context, program_state, snowman_scarf_transform, this.materials.snowman_scarf);
         this.shapes.snowman_hat.draw(context, program_state, snowman_hat_transform, this.materials.snowman_hat);
-    
+        
+        // this.shapes.music_symbol.draw(context, program_state, music_transform, this.materials.music_symbol);
+
+        this.shapes.santa.draw(context, program_state, santa_transform, this.materials.santa);
         //Draw Falling Snow
 
 
