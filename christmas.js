@@ -120,10 +120,14 @@ export class Christmas extends Scene {
         this.is_day = true;
         this.snowing = false;
         this.gradual = false;
+        this.pause_sky = false;
 
         // Ornament colors
         this.red_ornament_colors = ["#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226"];
         this.yellow_ornament_colors = ["#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D"];
+
+        // Sky color
+        this.sky_color;
     }
 
     play_music() {
@@ -151,7 +155,7 @@ export class Christmas extends Scene {
         this.key_triggered_button("Toggle day/night", ["Control", "0"], () => { this.is_day = !this.is_day; this.gradual = false; });
         this.key_triggered_button("Set ornament colors", ["Control", "1"], this.set_ornament_colors);
         this.key_triggered_button("Toggle snow", ["Control", "2"], this.addSnow);
-        this.key_triggered_button("Toggle gradual", ["Control", "3"], () => { this.gradual = !this.gradual; });
+        this.key_triggered_button("Toggle gradual", ["Control", "3"], () => { this.gradual = true; this.pause_sky = !this.pause_sky; });
     }
 
     set_ornament_colors() {
@@ -408,20 +412,31 @@ export class Christmas extends Scene {
         // Drawing
         let day_color = color(0.654, 0.780, 0.905, 1);
         let night_color = color(0.164, 0.164, 0.207, 1);
-        let sky_color = day_color;
-        if (!this.is_day)
-            sky_color = night_color;
+        
+        if (!this.gradual && this.is_day)
+            this.sky_color = day_color;
+        else if (!this.gradual && !this.is_day)
+            this.sky_color = night_color;
 
         if (this.gradual) {
             let scale_factor = (Math.sin(t/4)+1)/2;
-            let red = scale_factor*day_color[0] + (1-scale_factor)*night_color[0];
-            let green = scale_factor*day_color[1] + (1-scale_factor)*night_color[1];
-            let blue = scale_factor*day_color[2] + (1-scale_factor)*night_color[2];
 
-            sky_color = color(red, green, blue, 1);
+            let red, green, blue;
+
+            if (this.is_day) {
+                red = scale_factor*day_color[0] + (1-scale_factor)*night_color[0];
+                green = scale_factor*day_color[1] + (1-scale_factor)*night_color[1];
+                blue = scale_factor*day_color[2] + (1-scale_factor)*night_color[2];
+            } else {
+                red = (1-scale_factor)*day_color[0] + (scale_factor)*night_color[0];
+                green = (1-scale_factor)*day_color[1] + (scale_factor)*night_color[1];
+                blue = (1-scale_factor)*day_color[2] + (scale_factor)*night_color[2];
+            }
+
+            this.sky_color = color(red, green, blue, 1);
         }
 
-        this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky.override((sky_color)));
+        this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky.override((this.sky_color)));
         this.shapes.snow_terrain.draw(context, program_state, snow_terrain_transform, this.materials.snow_terrain);
 
         let total_background_trees = 14;
