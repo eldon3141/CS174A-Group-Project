@@ -128,6 +128,11 @@ export class Christmas extends Scene {
 
         // Sky color
         this.sky_color;
+
+        //Santa
+        this.activate_santa = false;
+        this.santa_angle = 0;
+        this.santa_translation = -25;
     }
 
     play_music() {
@@ -156,6 +161,7 @@ export class Christmas extends Scene {
         this.key_triggered_button("Set ornament colors", ["Control", "1"], this.set_ornament_colors);
         this.key_triggered_button("Toggle snow", ["Control", "2"], this.addSnow);
         this.key_triggered_button("Toggle gradual", ["Control", "3"], () => { this.gradual = true; this.pause_sky = !this.pause_sky; });
+        this.key_triggered_button("Activate Santa", ["Control", "4"], () => { this.activate_santa = !this.activate_santa });
     }
 
     set_ornament_colors() {
@@ -397,8 +403,18 @@ export class Christmas extends Scene {
 //         }
 //         let santa_pos = Mat4.translation(-20 + 2.25*t, 11 + 0.5*Math.sin(0.05*Math.PI*t), 0);
        
-        let santa_pos = Mat4.translation(-20 + 3*(t%20), 11, 0);
-        let santa_rot = Mat4.rotation(Math.PI/2.2, 0, 1,0).times(Mat4.rotation(Math.PI/8,0,0,1)).times(Mat4.rotation(Math.sin(0.005*Math.PI*(t%20)),1,0,0));
+        if(this.activate_santa){
+            this.santa_translation += 3*dt;
+            this.santa_angle += Math.sin(0.005*Math.PI*(dt));
+        }
+        if(this.santa_translation >= 30 && this.activate_santa == true) {
+            this.activate_santa = false;
+            this.santa_translation = -25;
+            this.santa_angle = 0;
+        }
+        //console.log(this.santa_translation);
+        let santa_pos = Mat4.translation(this.santa_translation, 11, 0);
+        let santa_rot = Mat4.rotation(Math.PI/2.2, 0, 1,0).times(Mat4.rotation(Math.PI/8,0,0,1)).times(Mat4.rotation(this.santa_angle,1,0,0));
         let santa_scale = Mat4.scale(2,2,2);
         let santa_transform = Mat4.identity().times(santa_pos).times(santa_rot).times(santa_scale);
 
