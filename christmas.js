@@ -1,10 +1,10 @@
 import { defs, tiny } from './common.js';
 import { Shape_From_File } from './obj-file.js';
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
 } = tiny;
 
-
+const { Cube, Axis_Arrows, Textured_Phong } = defs
 
 let ok = true;
 export class Christmas extends Scene {
@@ -26,7 +26,7 @@ export class Christmas extends Scene {
             chris_tree_star: new Shape_From_File("assets/christmas_tree/star.obj"),
             present1_box: new Shape_From_File("assets/presents/box1.obj"),
             present1_ribbon: new Shape_From_File("assets/presents/ribbon1.obj"),
-            present2_box: new Shape_From_File("assets/presents/box2.obj"),
+            present2_box: new Cube(),
             present2_ribbon: new Shape_From_File("assets/presents/ribbon2.obj"),
             present3_box: new Shape_From_File("assets/presents/box3.obj"),
             present3_ribbon: new Shape_From_File("assets/presents/ribbon3.obj"),
@@ -73,8 +73,13 @@ export class Christmas extends Scene {
                 { ambient: 1, color: hex_color("#A93226") }),
             green_present: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#50C878") }),
-            blue_present: new Material(new defs.Phong_Shader(),
-                { ambient: 1, color: hex_color("#6495ED") }),
+            // blue_present: new Material(new defs.Phong_Shader(),
+            //     { ambient: 1, color: hex_color("#6495ED") }),
+            santa_present: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/santa_img.png", "NEAREST")
+            }),
             purple_present: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#C3B1E1") }),
             snowman_body: new Material(new defs.Phong_Shader(),
@@ -418,7 +423,6 @@ export class Christmas extends Scene {
         let santa_scale = Mat4.scale(2,2,2);
         let santa_transform = Mat4.identity().times(santa_pos).times(santa_rot).times(santa_scale);
 
-
         // Lighting
         let white_light = vec4(1, 1, 1, 1);
         let snow_terrain_ctr = vec4(0, 0, 0, 1);
@@ -507,7 +511,7 @@ export class Christmas extends Scene {
         this.shapes.chris_tree_star.draw(context, program_state, chris_tree_star_transform, this.materials.chris_tree_star);
         this.shapes.present1_box.draw(context, program_state, present1_transform, this.materials.green_present);
         this.shapes.present1_ribbon.draw(context, program_state, ribbon1_transform, this.materials.ribbon);
-        this.shapes.present2_box.draw(context, program_state, present2_transform, this.materials.blue_present);
+        this.shapes.present2_box.draw(context, program_state, present2_transform, this.materials.santa_present);
         this.shapes.present2_ribbon.draw(context, program_state, ribbon2_transform, this.materials.ribbon);    
         this.shapes.present3_box.draw(context, program_state, present3_transform, this.materials.purple_present);
         this.shapes.present3_ribbon.draw(context, program_state, ribbon3_transform, this.materials.ribbon);
@@ -524,6 +528,7 @@ export class Christmas extends Scene {
         this.shapes.music_symbol.draw(context, program_state, music_transform, this.materials.music_symbol);
 
         this.shapes.santa.draw(context, program_state, santa_transform, this.materials.santa);
+
         //Draw Falling Snow
 
 
