@@ -40,7 +40,8 @@ export class Christmas extends Scene {
             snowman_hat: new Shape_From_File("assets/snowman/hat.obj"),
             music_symbol: new Shape_From_File("assets/music_symbol.obj"),
             santa: new Shape_From_File("assets/santa.obj"),
-            snow: new defs.Subdivision_Sphere(4)
+            snow: new defs.Subdivision_Sphere(4),
+            sphere: new defs.Subdivision_Sphere(6),
         };
 
         // *** Materials
@@ -106,7 +107,10 @@ export class Christmas extends Scene {
             ),
             santa: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#000000") }
-            )
+            ),
+            light_src: new Material(new defs.Phong_Shader(), {
+                color: color(1, 1, 1, 1), ambient: 1, diffusivity: 0, specularity: 0
+            }),
 
         }
 
@@ -212,6 +216,70 @@ export class Christmas extends Scene {
 
     }
 
+    texture_buffer_init(gl) {
+        // Depth Texture
+        this.lightDepthTexture = gl.createTexture();
+        // Bind it to TinyGraphics
+        this.light_depth_texture = new Buffered_Texture(this.lightDepthTexture);
+        this.stars.light_depth_texture = this.light_depth_texture
+        this.floor.light_depth_texture = this.light_depth_texture
+
+        this.lightDepthTextureSize = LIGHT_DEPTH_TEX_SIZE;
+        gl.bindTexture(gl.TEXTURE_2D, this.lightDepthTexture);
+        gl.texImage2D(
+            gl.TEXTURE_2D,      // target
+            0,                  // mip level
+            gl.DEPTH_COMPONENT, // internal format
+            this.lightDepthTextureSize,   // width
+            this.lightDepthTextureSize,   // height
+            0,                  // border
+            gl.DEPTH_COMPONENT, // format
+            gl.UNSIGNED_INT,    // type
+            null);              // data
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        // Depth Texture Buffer
+        this.lightDepthFramebuffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.lightDepthFramebuffer);
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,       // target
+            gl.DEPTH_ATTACHMENT,  // attachment point
+            gl.TEXTURE_2D,        // texture target
+            this.lightDepthTexture,         // texture
+            0);                   // mip level
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        // create a color texture of the same size as the depth texture
+        // see article why this is needed_
+        this.unusedTexture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.unusedTexture);
+        gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.RGBA,
+            this.lightDepthTextureSize,
+            this.lightDepthTextureSize,
+            0,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            null,
+        );
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        // attach it to the framebuffer
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,        // target
+            gl.COLOR_ATTACHMENT0,  // attachment point
+            gl.TEXTURE_2D,         // texture target
+            this.unusedTexture,         // texture
+            0);                    // mip level
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
 
     display(context, program_state) {
         this.canvas = context.canvas;
@@ -261,6 +329,7 @@ export class Christmas extends Scene {
             Math.PI / 4, context.width / context.height, .1, 1000);
 
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
+        const gl = context.context;
 
         
         // Transformations
@@ -424,9 +493,26 @@ export class Christmas extends Scene {
         let santa_transform = Mat4.identity().times(santa_pos).times(santa_rot).times(santa_scale);
 
         // Lighting
-        let white_light = vec4(1, 1, 1, 1);
-        let snow_terrain_ctr = vec4(0, 0, 0, 1);
-        program_state.lights = [new Light(snow_terrain_ctr, white_light, 1)];
+        let light_color = vec4(1, 1, 1, 1);
+        let light_position = vec4(20, 15, -10, 1);
+        program_state.lights = [new Light(light_position, light_color, 1)];
+        this.shapes.sphere.draw(context, program_state, 
+                                Mat4.translation(light_position[0], light_position[1], light_position[2]).times(Mat4.scale(2, 2, 2)), 
+                                this.materials.light_src.override({color: light_color}));
+
+        // rough target for light
+        let light_view_target = vec4(0, 0, 0, 1);
+        let light_field_of_view = 130 * Math.PI / 180;
+        program_state.draw_shadow = true;
+
+        // Step 1: setting perspective and camera to POV of light
+        const light_view_mat = Mat4.look_at(
+            vec3(light_position[0], light_position[1], light_position[2]),
+            vec3(light_view_target[0], light_view_target[1], light_view_target[2]),
+            vec3(0, 1, 0),
+        );
+        const light_proj_mat = Mat4.perspective(light_field_of_view, 1, 0.5, 500);
+        // Bind the Depth Texture Buffer
 
 
         // Drawing
