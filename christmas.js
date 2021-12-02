@@ -64,7 +64,7 @@ export class Christmas extends Scene {
                 { ambient: 0.5, color: hex_color("#6F4E37")}),
             cabin_door: new Material(new defs.Phong_Shader(),
                 { ambient: 0.5, color: hex_color("#3a2713") }),
-            snow_roof: new Material(new defs.Phong_Shader(),
+            snow_roof: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 1, color: hex_color("#ffffff") }),
             garland: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 1, color: hex_color("#4F7942") }),
@@ -72,7 +72,7 @@ export class Christmas extends Scene {
                 { ambient: 1, color: hex_color("#355E3B")}),
             chris_tree_stump: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 1, color: hex_color("#3a2713")}),
-            chris_tree_ornament_red: new Material(new defs.Phong_Shader(),
+            chris_tree_ornament_red: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 1, color: hex_color("#A93226") }),
             chris_tree_ornament_yellow: new Material(new defs.Phong_Shader(),
                 { ambient: 1, color: hex_color("#FBEC5D")}),
@@ -247,6 +247,30 @@ export class Christmas extends Scene {
         let cabin_door_transform = Mat4.identity().times(cabin_door_scale).times(cabin_door_rot).times(cabin_door_pos);
         this.shapes.cabin_door.draw(context, program_state, cabin_door_transform, shadow_pass ? this.floor.override({color: this.materials.cabin_door.color}) : this.pure);
 
+        let snow_roof_scale = Mat4.scale(1.1, 1.1, 1.1);
+        let snow_roof_pos = Mat4.translation(0.13, 0.57, 2.55);
+        let snow_roof_transform = Mat4.identity().times(snow_roof_scale).times(snow_roof_pos);
+        this.shapes.snow_roof.draw(context, program_state, snow_roof_transform, shadow_pass ? this.floor.override({color: this.materials.snow_roof.color}) : this.pure);
+
+        let garland_scale = Mat4.scale(0.1, 0.1, 0.1);
+        let garland_pos = Mat4.translation(1.3, -0.1, 38);
+        let garland_transform = Mat4.identity().times(garland_scale).times(garland_pos);
+        this.shapes.garland.draw(context, program_state, garland_transform, shadow_pass ? this.floor.override({color: this.materials.garland.color}) : this.pure);
+
+        let garl_orn_transform = garland_transform.times(Mat4.translation(0, -1.1, 0.5)).times(Mat4.scale(0.2, 0.2, 0.2));
+        let garl_orn_transform2 = garl_orn_transform.times(Mat4.translation(-4, 2, 0));
+        let garl_orn_transform3 = garl_orn_transform.times(Mat4.translation(4, 2, 0));
+        let garl_orn_transform4 = garl_orn_transform2.times(Mat4.translation(0, 5, 0));
+        let garl_orn_transform5 = garl_orn_transform3.times(Mat4.translation(0, 5, 0));
+        let garl_orn_transform6 = garl_orn_transform.times(Mat4.translation(0, 10, 0));
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform, shadow_pass ? this.floor.override({color: this.materials.chris_tree_ornament_red.color}) : this.pure);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform2, shadow_pass ? this.floor.override({color: this.materials.chris_tree_ornament_red.color}) : this.pure);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform3, shadow_pass ? this.floor.override({color: this.materials.chris_tree_ornament_red.color}) : this.pure);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform4, shadow_pass ? this.floor.override({color: this.materials.chris_tree_ornament_red.color}) : this.pure);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform5, shadow_pass ? this.floor.override({color: this.materials.chris_tree_ornament_red.color}) : this.pure);
+        this.shapes.chris_tree_ornament.draw(context, program_state, garl_orn_transform6, shadow_pass ? this.floor.override({color: this.materials.chris_tree_ornament_red.color}) : this.pure);
+
+
         let chris_tree_body_pos = Mat4.translation(-2.5, 0, 5);
         let chris_tree_body_scale = Mat4.scale(.5, .5, .5)
         let chris_tree_body_transform = Mat4.identity().times(chris_tree_body_pos).times(chris_tree_body_scale);
@@ -264,12 +288,12 @@ export class Christmas extends Scene {
         this.shapes.chris_tree_star.draw(context, program_state, chris_tree_star_transform, shadow_pass ? this.floor.override({ambient: 1, color: this.materials.chris_tree_star.color}) : this.pure);
 
         // Presents
-        let present1_pos = Mat4.translation(0, 8, 0);
-        let present1_scale = Mat4.scale(5, 5, 5);
-        let present1_transform = Mat4.identity().times(present1_pos).times(present1_scale);
-        let ribbon1_transform = present1_transform.times(Mat4.translation(0, 0.5, 0));
-        this.shapes.present1_box.draw(context, program_state, present1_transform, shadow_pass ? this.floor.override({color: this.materials.green_present.color}) : this.pure);
-        this.shapes.present1_ribbon.draw(context, program_state, ribbon1_transform, shadow_pass ? this.floor.override({color: this.materials.ribbon.color}) : this.pure);
+//         let present1_pos = Mat4.translation(0, 8, 0);
+//         let present1_scale = Mat4.scale(5, 5, 5);
+//         let present1_transform = Mat4.identity().times(present1_pos).times(present1_scale);
+//         let ribbon1_transform = present1_transform.times(Mat4.translation(0, 0.5, 0));
+//         this.shapes.present1_box.draw(context, program_state, present1_transform, shadow_pass ? this.floor.override({color: this.materials.green_present.color}) : this.pure);
+//         this.shapes.present1_ribbon.draw(context, program_state, ribbon1_transform, shadow_pass ? this.floor.override({color: this.materials.ribbon.color}) : this.pure);
 
         // let present2_pos = Mat4.translation(-2.5, 1.5, 20);
         // let present2_scale = Mat4.scale(0.3, 0.3, 0.3);
@@ -291,6 +315,40 @@ export class Christmas extends Scene {
         let snowman_arms_scale = Mat4.scale(1.1, 1.1, 1.1);
         let snowman_arms_transform = snowman_body_transform.times(snowman_arms_rot).times(snowman_arms_scale);
         this.shapes.snowman_arms.draw(context, program_state, snowman_arms_transform, shadow_pass? this.floor.override({color: this.materials.snowman_arms.color}) : this.pure);
+
+        let snowman_eyes_rot = Mat4.rotation(Math.PI/2, 0, 1, 0);
+        let snowman_eyes_scale = Mat4.scale(0.2, 0.2, 0.2);
+        let snowman_eyes_pos = Mat4.translation(0, 1.35, 0.45);
+        let snowman_eyes_transform = snowman_body_transform.times(snowman_eyes_pos).times(snowman_eyes_rot).times(snowman_eyes_scale);
+        this.shapes.snowman_eyes.draw(context, program_state, snowman_eyes_transform, shadow_pass? this.floor.override({color: this.materials.snowman_eyes.color}) : this.pure);
+
+        let snowman_buttons_scale = Mat4.scale(0.2, 0.2, 0.2);
+        let snowman_buttons_pos = Mat4.translation(0, 0.13, 0.7);
+        let snowman_buttons_transform = snowman_body_transform.times(snowman_buttons_pos).times(snowman_buttons_scale);
+        this.shapes.snowman_buttons.draw(context, program_state, snowman_buttons_transform, shadow_pass? this.floor.override({color: this.materials.snowman_buttons.color}) : this.pure);
+
+        let snowman_mouth_rot = Mat4.rotation(Math.PI/2, 0, 1, 0);
+        let snowman_mouth_scale = Mat4.scale(0.15, 0.15, 0.15);
+        let snowman_mouth_pos = Mat4.translation(0, 1, 0.52);
+        let snowman_mouth_transform = snowman_body_transform.times(snowman_mouth_pos).times(snowman_mouth_rot).times(snowman_mouth_scale);
+        this.shapes.snowman_mouth.draw(context, program_state, snowman_mouth_transform, shadow_pass? this.floor.override({color: this.materials.snowman_mouth.color}) : this.pure);
+
+        let snowman_nose_rot = Mat4.rotation(-Math.PI/2, 0, 1, 0);
+        let snowman_nose_scale = Mat4.scale(0.3, 0.3, 0.3);
+        let snowman_nose_pos = Mat4.translation(0, 1.2, 0.4);
+        let snowman_nose_transform = snowman_body_transform.times(snowman_nose_pos).times(snowman_nose_rot).times(snowman_nose_scale);
+        this.shapes.snowman_nose.draw(context, program_state, snowman_nose_transform, shadow_pass? this.floor.override({color: this.materials.snowman_nose.color}) : this.pure);
+
+        let snowman_scarf_rot = Mat4.rotation(Math.PI/2, 0, 1, 0);
+        let snowman_scarf_scale = Mat4.scale(0.4, 0.4, 0.4);
+        let snowman_scarf_pos = Mat4.translation(-0.12, 0.7, 0);
+        let snowman_scarf_transform = snowman_body_transform.times(snowman_scarf_pos).times(snowman_scarf_rot).times(snowman_scarf_scale);
+        this.shapes.snowman_scarf.draw(context, program_state, snowman_scarf_transform, shadow_pass? this.floor.override({color: this.materials.snowman_scarf.color}) : this.pure);
+
+        let snowman_hat_scale = Mat4.scale(0.5, 0.5, 0.5);
+        let snowman_hat_pos = Mat4.translation(0, 1.65, 0);
+        let snowman_hat_transform = snowman_body_transform.times(snowman_hat_pos).times(snowman_hat_scale);
+        this.shapes.snowman_hat.draw(context, program_state, snowman_hat_transform, shadow_pass? this.floor.override({color: this.materials.snowman_hat.color}) : this.pure);
 
     }
 
