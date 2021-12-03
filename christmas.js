@@ -109,7 +109,7 @@ export class Christmas extends Scene {
                 { ambient: 1, color: hex_color("#A93226") }),
             snowman_hat: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 1, color: hex_color("#1B1212") }),
-            snow: new Material(new defs.Phong_Shader(),
+            snow: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 1, color: hex_color("#FFFFFF") }
             ),
             music_symbol: new Material(new Shadow_Textured_Phong_Shader(1),
@@ -207,9 +207,9 @@ export class Christmas extends Scene {
      addSnow() {
         this.snowing = !this.snowing;
         if (this.snowing) {
-            for (var i = 0; i < 400; i++) {
-                var x = this.getRandomInt(-40, 40);
-                var z = this.getRandomInt(-40, 40);
+            for (var i = 0; i < 200; i++) {
+                var x = this.getRandomInt(-10, 10);
+                var z = this.getRandomInt(-2, 12);
                 var y = this.getRandomInt(0, 80);
                 this.snowLocations.push(vec3(x, y, z));
         //this.snowLocations.push(vec3(x, 100, z));
@@ -360,14 +360,14 @@ export class Christmas extends Scene {
 
 
         // Background Trees
-        let tree_pos = Mat4.translation(-14, 0, -8);
-        let tree_transform = Mat4.identity().times(tree_pos).times(Mat4.scale(1.5, 1.5, 1.5));
+        let tree_pos = Mat4.translation(-9, 0.5, -2);
+        let tree_transform = Mat4.identity().times(tree_pos).times(Mat4.scale(1, 1, 1));
 
         let total_background_trees = 10;
         let right_shift = Mat4.translation(2, 0, 0);
 
         for (let i = 0; i < total_background_trees; i++) {
-            this.bodies.push(-14+2*i, 0, -8, 4, 6);
+            this.bodies.push(-9+2*i, 0.5, -2, 4, 6);
             if (i == 1 || i == 4 || i == 9 || i == 13) {
                 this.shapes.chris_tree_body.draw(context, program_state, tree_transform, shadow_pass ? this.floor.override({ color: this.materials.tree.color }) : this.pure);
             } else if (i % 2 == 0) {
@@ -576,7 +576,7 @@ export class Christmas extends Scene {
      
         for (let i = 0; i < this.snowLocations.length; i++) {
             if (dt > 0) {
-                this.snowLocations[i][1] = this.snowLocations[i][1] - 0.1;
+                this.snowLocations[i][1] = this.snowLocations[i][1] - 0.02;
             }
             if (this.snowLocations[i][1] < -10) {
                 this.snowLocations[i][1] = 80;
@@ -588,8 +588,8 @@ export class Christmas extends Scene {
                     this.snowLocations[i][1] = 80;
                 }
             }
-            let snow_transform = Mat4.identity().times(Mat4.translation(this.snowLocations[i][0], this.snowLocations[i][1], this.snowLocations[i][2])).times(Mat4.scale(0.3, 0.3, 0.3));
-            this.shapes.snow.draw(context, program_state, snow_transform, this.materials.snow);
+            let snow_transform = Mat4.identity().times(Mat4.translation(this.snowLocations[i][0], this.snowLocations[i][1], this.snowLocations[i][2])).times(Mat4.scale(0.05, 0.05, 0.05));
+            this.shapes.snow.draw(context, program_state, snow_transform, shadow_pass ? this.floor.override({ specularity: 1,diffusivity: 1, smoothness: 10 }) : this.pure);
         }
     }
 
@@ -618,7 +618,7 @@ export class Christmas extends Scene {
         }
 
         // The position of the light
-        this.light_position = vec4(8, 5, -1, 1);
+        this.light_position = vec4(8, 7, -1, 1);
         //this.light_position = Mat4.rotation(t / 1500, 0, 1, 0).times(vec4(3, 6, 0, 1));
         // The color of the light
         this.light_color = color(1, 1, 1, 1);
