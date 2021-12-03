@@ -86,10 +86,11 @@ export class Christmas extends Scene {
                 { ambient: 1, color: hex_color("#50C878") }),
             blue_present: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 1, color: hex_color("#6495ED") }),
-            santa_present: new Material(new Textured_Phong(), {
+            santa_present: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: hex_color("#000000"),
-                ambient: 1, diffusivity: 0.1, specularity: 0.1,
-                texture: new Texture("assets/santa_img.png", "NEAREST")
+                ambient: 0.4, diffusivity: 0.5, specularity: 0.5,
+                color_texture: new Texture("assets/santa_img.png", "NEAREST"),
+                light_depth_texture: null
             }),
             purple_present: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 1, color: hex_color("#C3B1E1") }),
@@ -183,10 +184,9 @@ export class Christmas extends Scene {
 
     make_control_panel() {
         this.key_triggered_button("Toggle day/night", ["Control", "0"], () => { this.is_day = !this.is_day; this.gradual = false; });
-        this.key_triggered_button("Set ornament colors", ["Control", "1"], this.set_ornament_colors);
-        this.key_triggered_button("Toggle gradual", ["Control", "3"], () => { this.gradual = true; this.pause_sky = !this.pause_sky; });
-        this.key_triggered_button("Activate Santa", ["Control", "4"], () => { this.activate_santa = !this.activate_santa });
-        this.key_triggered_button("Toggle snow", ["Control", "2"], this.addSnow);
+        this.key_triggered_button("Toggle gradual", ["Control", "1"], () => { this.gradual = true; this.pause_sky = !this.pause_sky; });
+        this.key_triggered_button("Set ornament colors", ["Control", "2"], this.set_ornament_colors);
+        this.key_triggered_button("Toggle snow", ["Control", "3"], this.addSnow);
     }
 
     toHex(val) {
@@ -255,7 +255,7 @@ export class Christmas extends Scene {
         this.lightDepthTexture = gl.createTexture();
         // Bind it to TinyGraphics
         this.light_depth_texture = new Buffered_Texture(this.lightDepthTexture);
-        this.materials.cabin_frame.light_depth_texture = this.light_depth_texture;
+        this.materials.santa_present.light_depth_texture = this.light_depth_texture;
         this.floor.light_depth_texture = this.light_depth_texture;
 
         this.lightDepthTextureSize = LIGHT_DEPTH_TEX_SIZE;
@@ -330,6 +330,12 @@ export class Christmas extends Scene {
         let top_bound = 0.24;
         let bottom_bound = -0.097;
 
+        // SANTA CLICKING
+        let santa_pres_left_bound = -0.61;
+        let santa_pres_right_bound = -0.51;
+        let santa_pres_top_bound = -0.68;
+        let santa_pres_bottom_bound = -0.81;
+
         const mouse_position = (e, rect = this.canvas.getBoundingClientRect()) =>
             vec((e.clientX - (rect.left + rect.right) / 2) / ((rect.right - rect.left) / 2),
                 (e.clientY - (rect.bottom + rect.top) / 2) / ((rect.top - rect.bottom) / 2));
@@ -339,6 +345,7 @@ export class Christmas extends Scene {
             this.canvas.addEventListener("click", e => {
                 e.preventDefault();
                 let pos = mouse_position(e);
+                console.log(pos);
                 let pos_x = pos[0];
                 let pos_y = pos[1];
                 let inside_x = ((pos_x >= left_bound) && (pos_x <= right_bound));
@@ -356,8 +363,19 @@ export class Christmas extends Scene {
                     }
                 }
 
+                let in_santa_pres_x = ((pos_x >= santa_pres_left_bound) && (pos_x <= santa_pres_right_bound));
+                let in_santa_pres_y = ((pos_y >= santa_pres_bottom_bound) && (pos_y <= santa_pres_top_bound)); 
+                if (in_santa_pres_x && in_santa_pres_y) {
+                    this.activate_santa = !this.activate_santa;
+                }
+
+
             });
         }
+
+        
+
+        
 
         let day_color = color(0.654, 0.780, 0.905, 1);
         let night_color = color(0.164, 0.164, 0.207, 1);
@@ -453,7 +471,7 @@ export class Christmas extends Scene {
         let garland_scale = Mat4.scale(0.1, 0.1, 0.1);
         let garland_pos = Mat4.translation(1.3, -0.1, 38);
         let garland_transform = Mat4.identity().times(garland_scale).times(garland_pos);
-        this.shapes.garland.draw(context, program_state, garland_transform, shadow_pass ? this.floor.override({ color: this.materials.garland.color }) : this.pure);
+        this.shapes.garland.draw(context, program_state, garland_transform, shadow_pass ? this.floor.override({ ambient: 1, color: this.materials.garland.color }) : this.pure);
 
         let garl_orn_transform = garland_transform.times(Mat4.translation(0, -1.1, 0.5)).times(Mat4.scale(0.2, 0.2, 0.2));
         let garl_orn_transform2 = garl_orn_transform.times(Mat4.translation(-4, 2, 0));
@@ -561,7 +579,7 @@ export class Christmas extends Scene {
         let snowman_body_pos = Mat4.translation(4, 0.1, 3);
         let snowman_body_scale = Mat4.scale(0.4, 0.4, 0.4);
         let snowman_body_transform = Mat4.identity().times(snowman_body_pos).times(snowman_body_scale);
-        this.shapes.snowman_body.draw(context, program_state, snowman_body_transform, shadow_pass ? this.floor.override({ color: this.materials.snowman_body.color }) : this.pure);
+        this.shapes.snowman_body.draw(context, program_state, snowman_body_transform, shadow_pass ? this.floor.override({  diffusivity: 1, smoothness: 10, color: this.materials.snowman_body.color }) : this.pure);
 
         let snowman_arms_rot = Mat4.rotation(Math.PI / 2, 0, 1, 0);
         let snowman_arms_scale = Mat4.scale(1.1, 1.1, 1.1);
