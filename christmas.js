@@ -168,10 +168,20 @@ export class Christmas extends Scene {
         this.santa_right_bound = 9;
         this.santa_translation = this.santa_left_bound;
 
+        // Sky color
+        this.sky_color;
+
+        // Flags
+        this.is_day = true;
+        this.gradual = false;
+        this.pause_sky = false;
+
     }
 
     make_control_panel() {
+        this.key_triggered_button("Toggle day/night", ["Control", "0"], () => { this.is_day = !this.is_day; this.gradual = false; });
         this.key_triggered_button("Set ornament colors", ["Control", "1"], this.set_ornament_colors);
+        this.key_triggered_button("Toggle gradual", ["Control", "3"], () => { this.gradual = true; this.pause_sky = !this.pause_sky; });
         this.key_triggered_button("Activate Santa", ["Control", "4"], () => { this.activate_santa = !this.activate_santa });
     }
 
@@ -317,11 +327,36 @@ export class Christmas extends Scene {
             });
         }
 
+        let day_color = color(0.654, 0.780, 0.905, 1);
+        let night_color = color(0.164, 0.164, 0.207, 1);
+        
+        if (!this.gradual && this.is_day)
+            this.sky_color = day_color;
+        else if (!this.gradual && !this.is_day)
+            this.sky_color = night_color;
+
+        if (this.gradual) {
+            let scale_factor = (Math.sin(t/4)+1)/2;
+
+            let red, green, blue;
+
+            if (this.is_day) {
+                red = scale_factor*day_color[0] + (1-scale_factor)*night_color[0];
+                green = scale_factor*day_color[1] + (1-scale_factor)*night_color[1];
+                blue = scale_factor*day_color[2] + (1-scale_factor)*night_color[2];
+            } else {
+                red = (1-scale_factor)*day_color[0] + (scale_factor)*night_color[0];
+                green = (1-scale_factor)*day_color[1] + (scale_factor)*night_color[1];
+                blue = (1-scale_factor)*day_color[2] + (scale_factor)*night_color[2];
+            }
+
+            this.sky_color = color(red, green, blue, 1);
+        }
 
         let sky_pos = Mat4.translation(-2.50, 0, -30);
         let sky_scale = Mat4.scale(40, 30, 0.2);
         let sky_transform = Mat4.identity().times(sky_pos).times(sky_scale);
-        this.shapes.sky.draw(context, program_state, sky_transform, shadow_pass ? this.floor.override({ ambient: 1, diffusivity: 0, specularity: 0, color: this.materials.sky.color }) : this.pure);
+        this.shapes.sky.draw(context, program_state, sky_transform, shadow_pass ? this.floor.override({ ambient: 1, diffusivity: 0, specularity: 0, color: this.sky_color }) : this.pure);
 
         let snow_terrain_scale = Mat4.scale(7.6, 7.6, 7.6);
         let snow_terrain_pos = Mat4.translation(0, 0, 1, 1);
