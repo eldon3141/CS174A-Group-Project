@@ -159,10 +159,20 @@ export class Christmas extends Scene {
 
         // To make sure texture initialization only does once
         this.init_ok = false;
+
+        //Santa
+        this.activate_santa = false;
+        this.santa_start_angle = -Math.PI/22.5
+        this.santa_angle = this.santa_start_angle;
+        this.santa_left_bound = -9;
+        this.santa_right_bound = 9;
+        this.santa_translation = this.santa_left_bound;
+
     }
 
     make_control_panel() {
         this.key_triggered_button("Set ornament colors", ["Control", "1"], this.set_ornament_colors);
+        this.key_triggered_button("Activate Santa", ["Control", "4"], () => { this.activate_santa = !this.activate_santa });
     }
 
     toHex(val) {
@@ -262,8 +272,7 @@ export class Christmas extends Scene {
 
         let light_position = this.light_position;
         let light_color = this.light_color;
-        const t = program_state.animation_time;
-
+        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         program_state.draw_shadow = draw_shadow;
 
         if (draw_light_source && shadow_pass) {
@@ -508,6 +517,23 @@ export class Christmas extends Scene {
         let snowman_hat_pos = Mat4.translation(0, 1.65, 0);
         let snowman_hat_transform = snowman_body_transform.times(snowman_hat_pos).times(snowman_hat_scale);
         this.shapes.snowman_hat.draw(context, program_state, snowman_hat_transform, shadow_pass ? this.floor.override({ color: this.materials.snowman_hat.color }) : this.pure);
+        
+        // Santa + Reindeers
+        if(this.activate_santa){
+            this.santa_translation += dt;
+            this.santa_angle += Math.sin(0.005*Math.PI*(dt));
+        }
+        if(this.santa_translation >= this.santa_right_bound && this.activate_santa) {
+            this.activate_santa = false;
+            this.santa_translation = this.santa_left_bound;
+            this.santa_angle = this.santa_start_angle;
+        }
+        let santa_pos = Mat4.translation(this.santa_translation, 3, 3);
+        let santa_rot = Mat4.rotation(Math.PI/2, 0, 1,0).times(Mat4.rotation(Math.PI/8,0,0,1)).times(Mat4.rotation(this.santa_angle,1,0,0));
+        let santa_scale = Mat4.scale(0.8,0.8,0.8);
+        let santa_transform = Mat4.identity().times(santa_pos).times(santa_rot).times(santa_scale);
+        this.shapes.santa.draw(context, program_state, santa_transform, shadow_pass ? this.floor.override({ color: this.materials.santa.color }) : this.pure);
+
 
 
     }
