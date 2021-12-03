@@ -168,11 +168,15 @@ export class Christmas extends Scene {
         this.santa_right_bound = 9;
         this.santa_translation = this.santa_left_bound;
 
+        this.bodies = [];
+        this.snowLocations = [];
+
     }
 
     make_control_panel() {
         this.key_triggered_button("Set ornament colors", ["Control", "1"], this.set_ornament_colors);
         this.key_triggered_button("Activate Santa", ["Control", "4"], () => { this.activate_santa = !this.activate_santa });
+        this.key_triggered_button("Toggle snow", ["Control", "2"], this.addSnow);
     }
 
     toHex(val) {
@@ -197,6 +201,32 @@ export class Christmas extends Scene {
 
             this.red_ornament_colors[k] = new_red_color;
             this.yellow_ornament_colors[k] = new_yellow_color;
+        }
+    }
+
+     addSnow() {
+        this.snowing = !this.snowing;
+        if (this.snowing) {
+            for (var i = 0; i < 400; i++) {
+                var x = this.getRandomInt(-40, 40);
+                var z = this.getRandomInt(-40, 40);
+                var y = this.getRandomInt(0, 80);
+                this.snowLocations.push(vec3(x, y, z));
+        //this.snowLocations.push(vec3(x, 100, z));
+            }
+        }
+        else {
+            this.snowLocations = [];
+        }
+
+    }
+
+    checkCollision(snowx, snowy, snowz, objx, objy, objz, w, d, h) {
+        if (snowx <= objx+(d/2) && snowx >= objx-(d/2) && snowz <= objz+(w/2) && snowz >= objz-(w/2) && snowy <= objy+(h/2) && snowy >= objy-(h/2)) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
@@ -337,6 +367,7 @@ export class Christmas extends Scene {
         let right_shift = Mat4.translation(2, 0, 0);
 
         for (let i = 0; i < total_background_trees; i++) {
+            this.bodies.push(-14+2*i, 0, -8, 4, 6);
             if (i == 1 || i == 4 || i == 9 || i == 13) {
                 this.shapes.chris_tree_body.draw(context, program_state, tree_transform, shadow_pass ? this.floor.override({ color: this.materials.tree.color }) : this.pure);
             } else if (i % 2 == 0) {
@@ -534,12 +565,38 @@ export class Christmas extends Scene {
         let santa_transform = Mat4.identity().times(santa_pos).times(santa_rot).times(santa_scale);
         this.shapes.santa.draw(context, program_state, santa_transform, shadow_pass ? this.floor.override({ color: this.materials.santa.color }) : this.pure);
 
-
-
+        this.bodies.push([0, 0, 1, 80, 80, 1]); //snow terrain
+        this.bodies.push([0, 0, 3, 7, 7, 5.8]); //cabin
+        this.bodies.push([-2.5, 0, 5, 1, 1, 8]); //christmas_tree
+        this.bodies.push([-3, -0.65, 6, 1, 1, 1.2]); //present 1
+        this.bodies.push([1.7, 0.23, 2.8, 1, 1, 1.2]);
+        this.bodies.push([1.8, 0.07, 1, 1, 1, 1]);
+        this.bodies.push([4, 0.1, 3, 1, 1, 2.5]); //snowman
+        this.bodies.push([this.santa_translation, 3, 3, 7, 400, 1]); //santa
+     
+        for (let i = 0; i < this.snowLocations.length; i++) {
+            if (dt > 0) {
+                this.snowLocations[i][1] = this.snowLocations[i][1] - 0.1;
+            }
+            if (this.snowLocations[i][1] < -10) {
+                this.snowLocations[i][1] = 80;
+            }
+            
+            for (let a of this.bodies) {
+           
+                if (this.checkCollision(this.snowLocations[i][0],this.snowLocations[i][1],this.snowLocations[i][2],a[0],a[1],a[2],a[3],a[4],a[5])) {
+                    this.snowLocations[i][1] = 80;
+                }
+            }
+            let snow_transform = Mat4.identity().times(Mat4.translation(this.snowLocations[i][0], this.snowLocations[i][1], this.snowLocations[i][2])).times(Mat4.scale(0.3, 0.3, 0.3));
+            this.shapes.snow.draw(context, program_state, snow_transform, this.materials.snow);
+        }
     }
 
+
     display(context, program_state) {
-        const t = program_state.animation_time;
+        this.bodies = [];
+        const t = program_state.animation_time, dt = program_state.animation_delta_time / 1000;;
         const gl = context.context;
 
         if (!this.init_ok) {
@@ -601,6 +658,10 @@ export class Christmas extends Scene {
         //         this.shapes.square_2d.draw(context, program_state, Mat4.translation(-.99, .08, 0).times(Mat4.scale(0.5, 0.5 * gl.canvas.width / gl.canvas.height, 1)), this.depth_tex.override({
         //             texture: this.lightDepthTexture
         //         }));
+
+        //add snow 
+        
+        
     }
 
     // show_explanation(document_element) {
