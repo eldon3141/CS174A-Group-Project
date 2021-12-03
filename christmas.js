@@ -401,10 +401,10 @@ export class Christmas extends Scene {
         this.shapes.present1_ribbon.draw(context, program_state, ribbon1_transform, shadow_pass ? this.floor.override({ color: this.materials.ribbon.color }) : this.pure);
 
         let present2_pos = present1_pos.times(Mat4.translation(1.7, 0.23, 2.8));
-        let present2_scale = Mat4.scale(0.05, 0.05, 0.05);
+        let present2_scale = Mat4.scale(0.08, 0.08, 0.08);
         let present2_transform = Mat4.identity().times(present2_pos).times(present2_scale);
         let ribbon2_transform = present2_transform.times(Mat4.translation(0, 1.3, 0));
-        this.shapes.present2_box.draw(context, program_state, present2_transform, shadow_pass ? this.floor.override({ color: this.materials.blue_present.color }) : this.pure);
+        this.shapes.present2_box.draw(context, program_state, present2_transform, this.materials.santa_present);
         this.shapes.present2_ribbon.draw(context, program_state, ribbon2_transform, shadow_pass ? this.floor.override({ color: this.materials.ribbon.color }) : this.pure);
 
         let present3_pos = present1_pos.times(Mat4.translation(1.8, 0.07, 1));
