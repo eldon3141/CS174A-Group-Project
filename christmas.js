@@ -729,9 +729,6 @@ export class Christmas extends Scene {
 
         // The position of the light
         this.light_position = vec4(8, 7, -1.5, 1);
-        //this.light_position = Mat4.rotation(t / 1500, 0, 1, 0).times(vec4(3, 6, 0, 1));
-//         // The color of the light
-//         this.light_color = color(1, 1, 1, 1);
 
         // This is a rough target of the light.
         // Although the light is point light, we need a target to set the POV of the light
@@ -763,20 +760,6 @@ export class Christmas extends Scene {
         program_state.view_mat = program_state.camera_inverse;
         program_state.projection_transform = Mat4.perspective(Math.PI / 4, context.width / context.height, 0.5, 500);
         this.render_scene(context, program_state, true, true, true);
-
-        //         // Step 3: display the textures
-        //         this.shapes.square_2d.draw(context, program_state, Mat4.translation(-.99, .08, 0).times(Mat4.scale(0.5, 0.5 * gl.canvas.width / gl.canvas.height, 1)), this.depth_tex.override({
-        //             texture: this.lightDepthTexture
-        //         }));
-
-        //add snow 
-        
         
     }
-
-    // show_explanation(document_element) {
-    //     document_element.innerHTML += "<p>This demo loads an external 3D model file of a teapot.  It uses a condensed version of the \"webgl-obj-loader.js\" "
-    //         + "open source library, though this version is not guaranteed to be complete and may not handle some .OBJ files.  It is contained in the class \"Shape_From_File\". "
-    //         + "</p><p>One of these teapots is lit with bump mapping.  Can you tell which one?</p>";
-    // }
 }
