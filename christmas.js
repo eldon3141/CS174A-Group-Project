@@ -63,7 +63,7 @@ export class Christmas extends Scene {
             cabin_frame: new Material(new Shadow_Textured_Phong_Shader(1),
                 { ambient: 0.5, color: hex_color("#6F4E37") }),
             tree: new Material(new Shadow_Textured_Phong_Shader(1),
-                { ambient: 1, color: hex_color("#798978") }),
+                { ambient: 0.2, color: hex_color("#798978") }),
             cabin_door: new Material(new defs.Phong_Shader(),
                 { ambient: 0.5, color: hex_color("#3a2713") }),
             snow_roof: new Material(new Shadow_Textured_Phong_Shader(1),
@@ -119,6 +119,15 @@ export class Christmas extends Scene {
                 { ambient: 1, color: hex_color("#000000") }
             )
         };
+
+        this.canvas;
+        // AUDIO
+        this.music = new Audio();
+        this.activated = false;
+        this.hasListener = false;
+        
+        this.red_ornament_colors = ["#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226"];
+        this.yellow_ornament_colors = ["#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D"];
 
         // For the floor or other plain objects
         this.floor = new Material(new Shadow_Textured_Phong_Shader(1), {
@@ -179,6 +188,16 @@ export class Christmas extends Scene {
             this.red_ornament_colors[k] = new_red_color;
             this.yellow_ornament_colors[k] = new_yellow_color;
         }
+    }
+
+    play_music() {
+        this.music.src = "assets/let_it_snow.mp3";
+        this.music.volume = 0.3;
+        this.music.play();
+    }
+
+    pause_music() {
+        this.music.pause();
     }
 
     texture_buffer_init(gl) {
@@ -253,6 +272,43 @@ export class Christmas extends Scene {
             }));
         }
 
+        // MUSIC CLICKING
+        this.canvas = context.canvas;
+        let left_bound = -0.5;
+        let right_bound = -0.45;
+        let top_bound = 0.24;
+        let bottom_bound = -0.097;
+
+        const mouse_position = (e, rect = this.canvas.getBoundingClientRect()) =>
+            vec((e.clientX - (rect.left + rect.right) / 2) / ((rect.right - rect.left) / 2),
+                (e.clientY - (rect.bottom + rect.top) / 2) / ((rect.top - rect.bottom) / 2));
+
+        if (!this.hasListener) {
+            this.hasListener = true;
+            this.canvas.addEventListener("click", e => {
+                e.preventDefault();
+                let pos = mouse_position(e);
+                let pos_x = pos[0];
+                let pos_y = pos[1];
+                let inside_x = ((pos_x >= left_bound) && (pos_x <= right_bound));
+                let inside_y = ((pos_y >= bottom_bound) && (pos_y <= top_bound));
+                if (inside_x && inside_y) {
+                    if (!this.activated) {
+                        this.activated = true;
+                        console.log("Playing music!");
+                        this.play_music();
+                    }
+                    else {
+                        this.activated = false;
+                        console.log("Pausing music!");
+                        this.pause_music();
+                    }
+                }
+
+            });
+        }
+
+
         let sky_pos = Mat4.translation(-2.50, 0, -30);
         let sky_scale = Mat4.scale(40, 30, 0.2);
         let sky_transform = Mat4.identity().times(sky_pos).times(sky_scale);
@@ -271,8 +327,6 @@ export class Christmas extends Scene {
         let total_background_trees = 10;
         let right_shift = Mat4.translation(2, 0, 0);
 
-        // color: hex_color("#a7b9bd")
-        //  color: hex_color("#809ea6")
         for (let i = 0; i < total_background_trees; i++) {
             if (i == 1 || i == 4 || i == 9 || i == 13) {
                 this.shapes.chris_tree_body.draw(context, program_state, tree_transform, shadow_pass ? this.floor.override({ color: this.materials.tree.color }) : this.pure);
@@ -363,8 +417,6 @@ export class Christmas extends Scene {
 
         // Ornaments 
         let ornament_scale = Mat4.scale(0.05, 0.05, 0.05);
-        this.red_ornament_colors = ["#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226"];
-        this.yellow_ornament_colors = ["#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D", "#FBEC5D"];
 
         // Place ornaments
         let red_ornaments = [
@@ -456,6 +508,7 @@ export class Christmas extends Scene {
         let snowman_hat_pos = Mat4.translation(0, 1.65, 0);
         let snowman_hat_transform = snowman_body_transform.times(snowman_hat_pos).times(snowman_hat_scale);
         this.shapes.snowman_hat.draw(context, program_state, snowman_hat_transform, shadow_pass ? this.floor.override({ color: this.materials.snowman_hat.color }) : this.pure);
+
 
     }
 
