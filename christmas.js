@@ -216,12 +216,12 @@ export class Christmas extends Scene {
      addSnow() {
         this.snowing = !this.snowing;
         if (this.snowing) {
-            for (var i = 0; i < 200; i++) {
+            for (var i = 0; i < 300; i++) {
                 var x = this.getRandomInt(-10, 10);
                 var z = this.getRandomInt(-2, 12);
                 var y = this.getRandomInt(0, 80);
+
                 this.snowLocations.push(vec3(x, y, z));
-        //this.snowLocations.push(vec3(x, 100, z));
             }
         }
         else {
@@ -401,7 +401,7 @@ export class Christmas extends Scene {
         let right_shift = Mat4.translation(2, 0, 0);
 
         for (let i = 0; i < total_background_trees; i++) {
-            this.bodies.push(-9+2*i, 0.5, -2, 4, 6);
+            this.bodies.push(-9+2*i, 0.5, -2, 3, 3, 5);
             if (i == 1 || i == 4 || i == 9 || i == 13) {
                 this.shapes.chris_tree_body.draw(context, program_state, tree_transform, shadow_pass ? this.floor.override({ color: this.materials.tree.color }) : this.pure);
             } else if (i % 2 == 0) {
@@ -599,14 +599,16 @@ export class Christmas extends Scene {
         let santa_transform = Mat4.identity().times(santa_pos).times(santa_rot).times(santa_scale);
         this.shapes.santa.draw(context, program_state, santa_transform, shadow_pass ? this.floor.override({ color: this.materials.santa.color }) : this.pure);
 
-        this.bodies.push([0, 0, 1, 80, 80, 1]); //snow terrain
-        this.bodies.push([0, 0, 3, 7, 7, 5.8]); //cabin
-        this.bodies.push([-2.5, 0, 5, 1, 1, 8]); //christmas_tree
-        this.bodies.push([-3, -0.65, 6, 1, 1, 1.2]); //present 1
-        this.bodies.push([1.7, 0.23, 2.8, 1, 1, 1.2]);
-        this.bodies.push([1.8, 0.07, 1, 1, 1, 1]);
-        this.bodies.push([4, 0.1, 3, 1, 1, 2.5]); //snowman
-        this.bodies.push([this.santa_translation, 3, 3, 7, 400, 1]); //santa
+        this.bodies.push([0, -1, 1, 80, 80, 1]); //snow terrain
+        this.bodies.push([0, 0, 3, 2.5, 2.5, 2.6]); //cabin
+        this.bodies.push([-2.5, 0, 5, 1, 1, 2.9]); //christmas_tree
+        this.bodies.push([-3, -0.65, 6, 1, 1, 0.5]); //present 1
+        this.bodies.push([-1.3, -0.42, 8.8, 1, 1, 0.5]); //present 2
+        this.bodies.push([-1.2, -0.58, 7, 1, 1, 0.5]); //present 3
+        this.bodies.push([4, 0.1, 3, 1, 1, 2.3]); //snowman
+        if (this.activate_santa) {
+            this.bodies.push([this.santa_translation, 3, 3, 2, 400, 0.5]); //santa
+        }
      
         for (let i = 0; i < this.snowLocations.length; i++) {
             if (dt > 0) {
