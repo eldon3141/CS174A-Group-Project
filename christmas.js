@@ -124,7 +124,11 @@ export class Christmas extends Scene {
         this.canvas;
         // AUDIO
         this.music = new Audio();
+        this.sleighbells = new Audio();
+        this.hohoho = new Audio();
         this.activated = false;
+        this.sleighActivated = false;
+        this.hohohoActivated = false;
         this.hasListener = false;
         
         this.red_ornament_colors = ["#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226", "#A93226"];
@@ -250,6 +254,25 @@ export class Christmas extends Scene {
         this.music.pause();
     }
 
+    play_sleighbells() {
+        this.sleighbells.src = "assets/sleighbells.mp3";
+        this.sleighbells.volume = 0.3;
+        this.sleighbells.play();
+    }
+
+    pause_sleighbells() {
+        this.sleighbells.pause();
+    }
+
+    play_hohoho() {
+        this.hohoho.src = "assets/hohoho.mp3";
+        this.hohoho.volume = 0.3;
+        this.hohoho.play();
+    }
+
+    pause_hohoho() {
+        this.hohoho.pause();
+    }
     texture_buffer_init(gl) {
         // Depth Texture
         this.lightDepthTexture = gl.createTexture();
@@ -345,7 +368,7 @@ export class Christmas extends Scene {
             this.canvas.addEventListener("click", e => {
                 e.preventDefault();
                 let pos = mouse_position(e);
-                console.log(pos);
+                //console.log(pos);
                 let pos_x = pos[0];
                 let pos_y = pos[1];
                 let inside_x = ((pos_x >= left_bound) && (pos_x <= right_bound));
@@ -353,12 +376,12 @@ export class Christmas extends Scene {
                 if (inside_x && inside_y) {
                     if (!this.activated) {
                         this.activated = true;
-                        console.log("Playing music!");
+                        //console.log("Playing music!");
                         this.play_music();
                     }
                     else {
                         this.activated = false;
-                        console.log("Pausing music!");
+                        //console.log("Pausing music!");
                         this.pause_music();
                     }
                 }
@@ -621,9 +644,22 @@ export class Christmas extends Scene {
         this.shapes.snowman_hat.draw(context, program_state, snowman_hat_transform, shadow_pass ? this.floor.override({ color: this.materials.snowman_hat.color }) : this.pure);
         
         // Santa + Reindeers
-        if(this.activate_santa){
+        if (this.sleighActivated && !this.activate_santa) {
+            this.pause_sleighbells();
+            this.sleighActivated = false;
+            this.hohohoActivated = false;
+        }
+        if (this.activate_santa) {
             this.santa_translation += dt;
-            this.santa_angle += Math.sin(0.005*Math.PI*(dt));
+            this.santa_angle += Math.sin(0.005 * Math.PI * (dt));
+            if (!this.sleighActivated) {
+                this.play_sleighbells();
+                this.sleighActivated = true;
+            }
+            if (this.santa_angle > -0.03 && !this.hohohoActivated) {
+                this.play_hohoho();
+                this.hohohoActivated = true;
+            }
         }
         if(this.santa_translation >= this.santa_right_bound && this.activate_santa) {
             this.activate_santa = false;
