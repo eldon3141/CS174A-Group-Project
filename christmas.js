@@ -168,8 +168,9 @@ export class Christmas extends Scene {
         this.santa_right_bound = 9;
         this.santa_translation = this.santa_left_bound;
 
-        // Sky color
+        // Sky and light colors
         this.sky_color;
+        this.light_color = color(1, 1, 1, 1);
 
         // Flags
         this.is_day = true;
@@ -315,7 +316,9 @@ export class Christmas extends Scene {
         program_state.draw_shadow = draw_shadow;
 
         if (draw_light_source && shadow_pass) {
-            this.shapes.sphere.draw(context, program_state, Mat4.translation(light_position[0], light_position[1], light_position[2]).times(Mat4.scale(.5, .5, .5)), this.light_src.override({
+            let light_transform = Mat4.translation(light_position[0], light_position[1], light_position[2]).times(Mat4.scale(.5, .5, .5));
+
+            this.shapes.sphere.draw(context, program_state, light_transform, this.light_src.override({
                 color: light_color
             }));
         }
@@ -358,28 +361,44 @@ export class Christmas extends Scene {
 
         let day_color = color(0.654, 0.780, 0.905, 1);
         let night_color = color(0.164, 0.164, 0.207, 1);
+        let white_light = color (1, 1, 1, 1);
         
-        if (!this.gradual && this.is_day)
+        if (!this.gradual && this.is_day) {
             this.sky_color = day_color;
-        else if (!this.gradual && !this.is_day)
+            this.light_color = white_light;
+        }
+            
+        else if (!this.gradual && !this.is_day) {
             this.sky_color = night_color;
+            this.light_color = night_color;
+        }
 
         if (this.gradual) {
             let scale_factor = (Math.sin(t/4)+1)/2;
 
-            let red, green, blue;
+            let sky_red, sky_green, sky_blue;
+            let light_red, light_green, light_blue;
 
             if (this.is_day) {
-                red = scale_factor*day_color[0] + (1-scale_factor)*night_color[0];
-                green = scale_factor*day_color[1] + (1-scale_factor)*night_color[1];
-                blue = scale_factor*day_color[2] + (1-scale_factor)*night_color[2];
+                sky_red = scale_factor*day_color[0] + (1-scale_factor)*night_color[0];
+                sky_green = scale_factor*day_color[1] + (1-scale_factor)*night_color[1];
+                sky_blue = scale_factor*day_color[2] + (1-scale_factor)*night_color[2];
+
+                light_red = scale_factor + (1-scale_factor)*night_color[0];
+                light_green = scale_factor + (1-scale_factor)*night_color[1];
+                light_blue = scale_factor + (1-scale_factor)*night_color[2];
             } else {
-                red = (1-scale_factor)*day_color[0] + (scale_factor)*night_color[0];
-                green = (1-scale_factor)*day_color[1] + (scale_factor)*night_color[1];
-                blue = (1-scale_factor)*day_color[2] + (scale_factor)*night_color[2];
+                sky_red = (1-scale_factor)*day_color[0] + (scale_factor)*night_color[0];
+                sky_green = (1-scale_factor)*day_color[1] + (scale_factor)*night_color[1];
+                sky_blue = (1-scale_factor)*day_color[2] + (scale_factor)*night_color[2];
+
+                light_red = (1-scale_factor) + (scale_factor)*night_color[0];
+                light_green = (1-scale_factor) + (scale_factor)*night_color[1];
+                light_blue = (1-scale_factor) + (scale_factor)*night_color[2];
             }
 
-            this.sky_color = color(red, green, blue, 1);
+            this.sky_color = color(sky_red, sky_green, sky_blue, 1);
+            this.light_color = color(light_red, light_green, light_blue, 1);
         }
 
         let sky_pos = Mat4.translation(-2.50, 0, -30);
@@ -394,14 +413,14 @@ export class Christmas extends Scene {
 
 
         // Background Trees
-        let tree_pos = Mat4.translation(-9, 0.5, -2);
+        let tree_pos = Mat4.translation(-9, 0.5, -1);
         let tree_transform = Mat4.identity().times(tree_pos).times(Mat4.scale(1, 1, 1));
 
         let total_background_trees = 10;
         let right_shift = Mat4.translation(2, 0, 0);
 
         for (let i = 0; i < total_background_trees; i++) {
-            this.bodies.push(-9+2*i, 0.5, -2, 4, 6);
+            this.bodies.push(-9+2*i, 0.5, -1, 4, 6);
             if (i == 1 || i == 4 || i == 9 || i == 13) {
                 this.shapes.chris_tree_body.draw(context, program_state, tree_transform, shadow_pass ? this.floor.override({ color: this.materials.tree.color }) : this.pure);
             } else if (i % 2 == 0) {
@@ -652,10 +671,10 @@ export class Christmas extends Scene {
         }
 
         // The position of the light
-        this.light_position = vec4(8, 7, -1, 1);
+        this.light_position = vec4(8, 7, -1.5, 1);
         //this.light_position = Mat4.rotation(t / 1500, 0, 1, 0).times(vec4(3, 6, 0, 1));
-        // The color of the light
-        this.light_color = color(1, 1, 1, 1);
+//         // The color of the light
+//         this.light_color = color(1, 1, 1, 1);
 
         // This is a rough target of the light.
         // Although the light is point light, we need a target to set the POV of the light
