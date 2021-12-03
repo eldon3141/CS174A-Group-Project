@@ -390,6 +390,7 @@ export class Christmas extends Scene {
                 let in_santa_pres_y = ((pos_y >= santa_pres_bottom_bound) && (pos_y <= santa_pres_top_bound)); 
                 if (in_santa_pres_x && in_santa_pres_y) {
                     this.activate_santa = !this.activate_santa;
+                    this.pause_hohoho();
                 }
 
 
